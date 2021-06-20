@@ -26,7 +26,6 @@ jobs:
             ${{ runner.OS }}-node-
             ${{ runner.OS }}-
       - run: npm ci
-      - run: npx lockfile-lint --type npm --path frontend/package-lock.json --validate-https --allowed-hosts npm
       - run: npx lockfile-lint --type npm --path backend/package-lock.json --validate-https --allowed-hosts npm
       - run: npm run lint
   test:
@@ -78,6 +77,9 @@ jobs:
   build:
     name: Build and push
     runs-on: ubuntu-18.04
+    outputs:
+      tag: ${{ steps.extract_tag.outputs.tag }}
+    needs: [gatekeep]
     steps:
       - uses: actions/checkout@v2
       - name: Extract branch name
@@ -102,49 +104,31 @@ jobs:
           local-image: ${{ steps.extract_tag.outputs.tag }}
           image: ${{ secrets.ECR_REPO }}:${{ steps.extract_tag.outputs.tag }}
   deploy:
-    name: Deploy to Elastic Beanstalk
+    name: Deploy to ECS
     runs-on: ubuntu-18.04
     needs: [ci, test, gatekeep, build]
     if: needs.gatekeep.outputs.proceed == 'true'
     steps:
-      - uses: actions/checkout@v2
-      - name: Package Dockerrun.aws.json
-        run: |
-          sed -i -e "s|@REPO|$REPO|g" Dockerrun.aws.json
-          sed -i -e "s|@TAG|$TAG|g" Dockerrun.aws.json
-          zip -r "deploy.zip" Dockerrun.aws.json
-        env:
-          REPO: ${{secrets.ECR_URL}}/${{secrets.ECR_REPO}}
-          TAG: ${{ needs.build.outputs.tag }}
-      - name: Get timestamp
-        shell: bash
-        run: echo "##[set-output name=timestamp;]$(env TZ=Asia/Singapore date '+%Y%m%d%H%M%S')"
-        id: get_timestamp
-      - name: Get Elastic Beanstalk label
-        shell: bash
-        run: echo "##[set-output name=label;]$(echo ${TAG}-${TIMESTAMP})"
-        id: get_label
-        env:
-          TAG: ${{ needs.build.outputs.tag }}
-          TIMESTAMP: ${{ steps.get_timestamp.outputs.timestamp }}
-      - name: Select Elastic Beanstalk variables
-        run: |
-          if [[ $GITHUB_REF == $STAGING_BRANCH ]]; then
-            echo EB_APP=${{ secrets.EB_APP_STAGING }} >> $GITHUB_ENV;
-            echo EB_ENV=${{ secrets.EB_ENV_STAGING }} >> $GITHUB_ENV;
-          elif if [[ $GITHUB_REF == $PRODUCTION_BRANCH ]]; then
-            echo EB_APP=${{ secrets.EB_APP_PRODUCTION }} >> $GITHUB_ENV;
-            echo EB_ENV=${{ secrets.EB_ENV_PRODUCTION }} >> $GITHUB_ENV;
-        id: select_eb_vars
-      - name: Deploy to EB
-        uses: opengovsg/beanstalk-deploy@v11
+      - name: Configure AWS credentials
+        uses: opengovsg/gh-actions-configure-aws-credentials@v1
         with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          application_name: ${{ env.EB_APP }}
-          environment_name: ${{ env.EB_ENV }}
-          version_label: ${{ steps.get_label.outputs.label }}
-          region: ap-southeast-1
-          deployment_package: deploy.zip
-          wait_for_deployment: false
-          wait_for_environment_recovery: false
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-1
+      # By downloading the task definition from the task definition family, the developer can set environment variables in the task definition
+      # without accidentally committing them to GitHub. 
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEF_FAMILY }} --query taskDefinition > task-definition.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: opengovsg/gh-actions-amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: run
+          image: ${{ secrets.ECR_URL }}/${{ secrets.ECR_REPO }}:${{ needs.build.outputs.tag }}
+      - name: Deploy Amazon ECS task definition
+        uses: opengovsg/gh-actions-ecs-deploy-task-definition-to-scheduled-task@v2.1.1
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}

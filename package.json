@@ -5,13 +5,12 @@
   "main": "build/backend/index.js",
   "scripts": {
     "on-backend": "npm run --prefix backend",
-    "on-frontend": "npm run --prefix frontend",
-    "postinstall": "npm --prefix backend install && npm --prefix frontend install",
+    "postinstall": "npm --prefix backend install",
     "dev-docker": "docker-compose up --build",
-    "dev": "env-cmd concurrently \"npm run on-backend -- dev\" \"npm run on-frontend -- start\"",
-    "lint": "npm run on-backend -- lint && npm run on-frontend -- lint",
-    "lint-fix": "npm run on-backend -- lint-fix && npm run on-frontend -- lint-fix",
-    "test": "npm run on-backend -- test && npm run on-frontend -- test",
+    "dev": "env-cmd concurrently \"npm run on-backend -- dev\"",
+    "lint": "npm run on-backend -- lint",
+    "lint-fix": "npm run on-backend -- lint-fix",
+    "test": "npm run on-backend -- test",
     "cz": "git-cz",
     "start": "node backend/build/index.js",
     "prepare": "husky install"

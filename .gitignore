@@ -66,4 +66,3 @@ typings/
 # Typescript build
 build
 backend/build
-frontend/build
