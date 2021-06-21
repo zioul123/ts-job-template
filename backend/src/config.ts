@@ -71,6 +71,51 @@ const config = convict({
       env: 'JUMPHOST_PROXY_PORT',
       default: 9090,
     }
+  },
+  mailOpts: {
+    host: {
+      doc: 'SMTP host name',
+      env: 'SMTP_HOST',
+      default: ''
+    },
+    port: {
+      doc: 'SMTP port',
+      env: 'SMTP_PORT',
+      default: 465,
+    },
+    auth: {
+      user: {
+        doc: 'Username for SMTP email',
+        env: 'SMTP_USER',
+        sensitive: true,
+        default: ''
+      },
+      pass: {
+        doc: 'Password for SMTP email',
+        env: 'SMTP_PASS',
+        sensitive: true,
+        default: ''
+      }
+    }
+  },
+  mailBody: {
+    from: {
+      doc: 'Email from',
+      env: 'MAIL_FROM',
+      default: ''
+    },
+    to: {
+      doc: 'Email to',
+      env: 'MAIL_TO',
+      default: ''
+    }
+  },
+  slackHook: {
+    uri: {
+      doc: 'URI of slack webhook',
+      env: 'SLACK_HOOK_URI',
+      default:''
+    }
   }
 })
 
