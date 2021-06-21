@@ -28,12 +28,14 @@ convict.addFormats({
 })
 
 const config = convict({
-  port: {
-    doc: 'The port that the service listens on',
-    env: 'PORT',
-    format: 'int',
-    default: 8080,
-  },
+  cronitor: {
+    link: {
+      doc: 'The telemetry link',
+      env: 'CRONITOR_LINK',
+      default: '',
+      example: 'https://cronitor.link/p/123/ABC'
+    }
+  }
 })
 
 export default config

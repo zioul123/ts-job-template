@@ -1,12 +1,16 @@
-import express from 'express'
-import path from 'path'
 
-import config from './config'
+import { getCronitor } from './util/cronitor'
+const main = async () => {
+    const cronitor = getCronitor()
+    await cronitor?.run()
+    try {
+        console.log(`Running at ${new Date()}`)
+        await cronitor?.complete()
+    } catch (err) {
+        await cronitor?.fail(err.message)
+    }
+}
 
-const app = express()
-const port = config.get('port')
-
-app.use(express.static(path.resolve(__dirname + '/../../frontend/build')))
-app.get('/api/hello', (_req, res) => res.send('Hello World'))
-
-app.listen(port, () => console.log(`Listening on port ${port}`))
+;(async()=> {
+    main()
+})()
