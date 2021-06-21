@@ -28,12 +28,96 @@ convict.addFormats({
 })
 
 const config = convict({
-  port: {
-    doc: 'The port that the service listens on',
-    env: 'PORT',
-    format: 'int',
-    default: 8080,
+  env: {
+    doc: 'The application environment.',
+    format: ['production', 'development', 'staging'],
+    default: 'production',
+    env: 'NODE_ENV'
   },
+  cronitor: {
+    link: {
+      doc: 'The telemetry link. Eg. https://cronitor.link/p/123/ABC',
+      env: 'CRONITOR_LINK',
+      default: '',
+    }
+  },
+  database: {
+    uri: {
+      doc: 'URI to database',
+      env: 'DB_URI',
+      default: '',
+      format: 'required-string',
+      sensitive: true
+    }
+  },
+  jumphost: {
+    uri: {
+      doc: 'URI to jumphost Eg. ec2-user@12.12.12.12',
+      env: 'JUMPHOST_URI',
+      default: '',
+    },
+    keyFilePath: {
+      doc: 'File path to the identity keypair for connecting to jumphost',
+      env: 'JUMPHOST_KEY_FILE_PATH',
+      default: ''
+    },
+    port: {
+      doc: 'Port to connect to jumphost',
+      env: 'JUMPHOST_PORT',
+      default: 22
+    },
+    proxyPort: {
+      doc: 'Port to use on localhost for tunneling to the database',
+      env: 'JUMPHOST_PROXY_PORT',
+      default: 9090,
+    }
+  },
+  mailOpts: {
+    host: {
+      doc: 'SMTP host name',
+      env: 'SMTP_HOST',
+      default: ''
+    },
+    port: {
+      doc: 'SMTP port',
+      env: 'SMTP_PORT',
+      default: 465,
+    },
+    auth: {
+      user: {
+        doc: 'Username for SMTP email',
+        env: 'SMTP_USER',
+        sensitive: true,
+        default: ''
+      },
+      pass: {
+        doc: 'Password for SMTP email',
+        env: 'SMTP_PASS',
+        sensitive: true,
+        default: ''
+      }
+    }
+  },
+  mailBody: {
+    from: {
+      doc: 'Email from',
+      env: 'MAIL_FROM',
+      default: ''
+    },
+    to: {
+      doc: 'Email to',
+      env: 'MAIL_TO',
+      default: ''
+    }
+  },
+  slackHook: {
+    uri: {
+      doc: 'URI of slack webhook',
+      env: 'SLACK_HOOK_URI',
+      default:''
+    }
+  }
 })
 
+config.validate({ strict: true })
 export default config

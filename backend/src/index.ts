@@ -1,12 +1,60 @@
-import express from 'express'
-import path from 'path'
 
-import config from './config'
+import { getCronitor } from './util/cronitor'
+import { createPgClient, JumphostInput } from './util/create-pg-client'
+import config from './config';
+import nodemailer from 'nodemailer'
+import { sendEmail, sendToSlackHook } from './util/notify';
 
-const app = express()
-const port = config.get('port')
+const useJumphost = (): JumphostInput | undefined=> {
+    if(config.get('jumphost.uri')) {
+        return config.get('jumphost')
+    }
+    return
+}
 
-app.use(express.static(path.resolve(__dirname + '/../../frontend/build')))
-app.get('/api/hello', (_req, res) => res.send('Hello World'))
+const main = async () => {
+    const cronitor = getCronitor()
+    await cronitor?.run()
+    try {
+        console.log(`Running at ${new Date()}`)
 
-app.listen(port, () => console.log(`Listening on port ${port}`))
+        const pgClient = await createPgClient({
+            database: { uri: config.get('database.uri') },
+            jumphost: useJumphost()
+        })
+
+        await pgClient.connect().then(()=>{ 
+              console.log('Connected')
+        })
+
+        const result = await pgClient.query('SELECT 1+1;')
+        console.log(result.rows)
+
+        await pgClient.end()
+        .then(() => console.log('Disconnected'))
+
+        const mailer = nodemailer.createTransport(config.get('mailOpts'))
+        const messageId = await sendEmail(mailer, {
+            from: config.get('mailBody.from'),
+            to: [config.get('mailBody.to')],
+            subject: 'Cron job',
+            html: JSON.stringify(result.rows)
+        })
+        console.log(`Sent mail ${messageId}`)
+
+        const webhook = await sendToSlackHook({
+            uri: config.get('slackHook.uri'),
+            text: JSON.stringify(result.rows)
+        })
+        console.log(`Sent to webhook ${webhook.data}`)
+
+        await cronitor?.complete()
+    } catch (err) {
+        console.error(err)
+        await cronitor?.fail(err.message) 
+    }
+}
+
+;(async()=> {
+    main()
+})()
