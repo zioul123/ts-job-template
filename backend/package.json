@@ -16,6 +16,8 @@
   "license": "MIT",
   "devDependencies": {
     "@types/convict": "^6.0.2",
+    "@types/pg": "^8.6.0",
+    "@types/ssh2": "^0.5.46",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
     "eslint": "^7.28.0",
@@ -34,6 +36,8 @@
   "dependencies": {
     "axios": "^0.21.1",
     "convict": "^6.1.0",
-    "cronitor": "^2.2.3"
+    "cronitor": "^2.2.3",
+    "pg": "^8.6.0",
+    "ssh2": "^1.1.0"
   }
 }
