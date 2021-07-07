@@ -18,7 +18,7 @@
     "@types/convict": "^6.0.2",
     "@types/nodemailer": "^6.4.2",
     "@types/pg": "^8.6.0",
-    "@types/ssh2": "^0.5.46",
+    "@types/ssh2": "^0.5.47",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.28.2",
     "eslint": "^7.30.0",
