@@ -4,10 +4,13 @@ Generated from opengovsg/ts-template
 ## How to use
 
 ### Requirements
-
-- Create a cluster and a task definition. In the task definition, create a container named `run`. The name of this container is currently hard-coded in the Github workflow. For that container, specify any image name - it will be updated by the workflow when your code is pushed.
+In summary, 
+- Create a repo in ECR, and a cluster and a task definition in ECS. In the task definition, create a container named `run`. The name of this container is currently hard-coded in the Github workflow. For that container, specify any image name - it will be updated by the workflow when your code is pushed.
 [Reference](https://docs.aws.amazon.com/AmazonECS/latest/userguide/create_cluster.html)
-- Create a scheduled task on Cloudwatch with the schedule needed. [Reference](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html)
+- Create a scheduled task in ECS with the schedule needed. [Reference](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html)
+
+Screenshots are available in [docs](./docs)
+
 ### Set these secrets in GitHub Actions 
 ```
 AWS_ACCESS_KEY_ID - authenticating to AWS services
