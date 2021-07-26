@@ -1,11 +1,16 @@
 # TypeScript Scheduled Task Deployment for OGP
 Generated from opengovsg/ts-template
 
+This repo shows an example of how to deploy two jobs that have to run on a schedule to Elastic Container Service. 
+There are various ways of deploying scheduled jobs
+- Use a cron job on an EC2 instance (`crontab -e`). It is the fastest way, but if you're piping your logs into the instance, you'll need to figure out how to rotate the logs so you don't run out of disk space. 
+- Use a lambda and cloudwatch event rule. Simply zip up your code and upload it to a lambda, and point a cloudwatch event rule at it. But you will be subject to a 15 min limit.
+- Use ECS and cloudwatch event rule. It's more work, but you can scale your resources as necessary and run long running tasks, with automatic logs. 
 ## How to use
 
 ### Requirements
 In summary, 
-- Create a repo in ECR, and a cluster and a task definition in ECS. In the task definition, create a container named `run`. The name of this container is currently hard-coded in the Github workflow. For that container, specify any image name - it will be updated by the workflow when your code is pushed.
+- Create a repo in ECR, and a cluster and a task definition in ECS. In the task definition, create a container named `run`. The name of this container is currently hard-coded in the Github workflow. For that container, specify any image name - it will be updated by the workflow when your code is pushed. You can see the examples to get you started (./backend/src/examples/task-definitions).
 [Reference](https://docs.aws.amazon.com/AmazonECS/latest/userguide/create_cluster.html)
 - Create a scheduled task in ECS with the schedule needed. [Reference](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html)
 

@@ -17,7 +17,8 @@
         "entryPoint": null,
         "portMappings": [],
         "command": [
-          "node backend/build/examples/job01.js"
+          "node",
+          "backend/build/examples/job01.js"
         ],
         "linuxParameters": null,
         "cpu": 0,
