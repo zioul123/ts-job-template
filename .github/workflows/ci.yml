@@ -103,8 +103,8 @@ jobs:
           region: ap-southeast-1
           local-image: ${{ steps.extract_tag.outputs.tag }}
           image: ${{ secrets.ECR_REPO }}:${{ steps.extract_tag.outputs.tag }}
-  deploy:
-    name: Deploy to ECS
+  deploy-job01:
+    name: Deploy Job01 to ECS
     runs-on: ubuntu-18.04
     needs: [ci, test, gatekeep, build]
     if: needs.gatekeep.outputs.proceed == 'true'
@@ -115,20 +115,48 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-1
-      # By downloading the task definition from the task definition family, the developer can set environment variables in the task definition
-      # without accidentally committing them to GitHub. 
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEF_FAMILY }} --query taskDefinition > task-definition.json
+          aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEF_JOB01 }} --query taskDefinition > task-def-job01.json
       - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
+        id: task-def-job01
         uses: opengovsg/gh-actions-amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition.json
+          task-definition: task-def-job01.json
           container-name: run
           image: ${{ secrets.ECR_URL }}/${{ secrets.ECR_REPO }}:${{ needs.build.outputs.tag }}
       - name: Deploy Amazon ECS task definition
         uses: opengovsg/gh-actions-ecs-deploy-task-definition-to-scheduled-task@v2.1.1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          task-definition: ${{ steps.task-def-job01.outputs.task-definition }}
+          rule-prefix: job01
+          cluster: ${{ secrets.ECS_CLUSTER_NAME }}
+  deploy-job02:
+    name: Deploy Job02 to ECS
+    runs-on: ubuntu-18.04
+    needs: [ci, test, gatekeep, build]
+    if: needs.gatekeep.outputs.proceed == 'true'
+    steps:
+      - name: Configure AWS credentials
+        uses: opengovsg/gh-actions-configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-1
+      # Job02
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ secrets.TASK_DEF_JOB02 }} --query taskDefinition > task-def-job02.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-job02
+        uses: opengovsg/gh-actions-amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-def-job02.json
+          container-name: run
+          image: ${{ secrets.ECR_URL }}/${{ secrets.ECR_REPO }}:${{ needs.build.outputs.tag }}
+      - name: Deploy Amazon ECS task definition
+        uses: opengovsg/gh-actions-ecs-deploy-task-definition-to-scheduled-task@v2.1.1
+        with:
+          task-definition: ${{ steps.task-def-job02.outputs.task-definition }}
+          rule-prefix: job02
           cluster: ${{ secrets.ECS_CLUSTER_NAME }}

@@ -35,9 +35,14 @@ const config = convict({
     env: 'NODE_ENV'
   },
   cronitor: {
-    link: {
+    job01: {
       doc: 'The telemetry link. Eg. https://cronitor.link/p/123/ABC',
-      env: 'CRONITOR_LINK',
+      env: 'CRONITOR_JOB_01',
+      default: '',
+    },
+    job02: {
+      doc: 'The telemetry link. Eg. https://cronitor.link/p/123/ABC',
+      env: 'CRONITOR_JOB_02',
       default: '',
     }
   },

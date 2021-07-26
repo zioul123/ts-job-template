@@ -13,7 +13,9 @@
     "test": "npm run on-backend -- test",
     "cz": "git-cz",
     "start": "node backend/build/index.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "job01": "node backend/build/examples/job01.js",
+    "job02": "node backend/build/examples/job02.js"
   },
   "author": "Open Government Products, GovTech Singapore (https://open.gov.sg)",
   "license": "MIT",
