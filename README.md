@@ -15,7 +15,8 @@ AWS_SECRET_ACCESS_KEY  - authenticating to AWS services
 ECR_REPO - name of ECR repository
 ECR_URL - <accountid>.dkr.ecr.ap-southeast-1.amazonaws.com
 ECS_CLUSTER_NAME - name of cluster
-TASK_DEF_FAMILY - name of task definition
+TASK_DEF_JOB01 - name of task definition for job01
+TASK_DEF_JOB02 - name of task definition for job02
 ```
 ### Write your code
 Write the code in the `/backend` folder, commit, and push. A new task definition should be created. The Cloudwatch rule should display the updated task definition as well. 
