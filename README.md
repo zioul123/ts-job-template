@@ -22,9 +22,18 @@ AWS_ACCESS_KEY_ID - authenticating to AWS services
 AWS_SECRET_ACCESS_KEY  - authenticating to AWS services
 ECR_REPO - name of ECR repository
 ECR_URL - <accountid>.dkr.ecr.ap-southeast-1.amazonaws.com
-ECS_CLUSTER_NAME - name of cluster
-TASK_DEF_JOB01 - name of task definition for job01
-TASK_DEF_JOB02 - name of task definition for job02
+
+ECS_CLUSTER_NAME_STAGING - name of cluster
+TASK_DEF_JOB01_STAGING - name of task definition for job01
+RULE_PREFIX_JOB01_STAGING - prefix that the cloudwatch event rule starts with for job01
+TASK_DEF_JOB02_STAGING - name of task definition for job02
+RULE_PREFIX_JOB02_STAGING - prefix that the cloudwatch event rule starts with for job02
+
+ECS_CLUSTER_NAME_PRODUCTION- name of cluster
+TASK_DEF_JOB01_PRODUCTION- name of task definition for job01
+RULE_PREFIX_JOB01_PRODUCTION - prefix that the cloudwatch event rule starts with for job01
+TASK_DEF_JOB02_PRODUCTION- name of task definition for job02
+RULE_PREFIX_JOB02_PRODUCTION - prefix that the cloudwatch event rule starts with for job02
 ```
 ### Write your code
 Write the code in the `/backend` folder, commit, and push. A new task definition should be created. The Cloudwatch rule should display the updated task definition as well. 
